@@ -1,0 +1,55 @@
+<?php
+
+/**
+ * @file
+ * Contains hook implementations and helper functions for GSB CMSI Test
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function gsb_cmis_menu() {
+  $items = array();
+  $items['gsb-cmis/%gsb_cmis_content_type_import/%'] = array(
+    'title' => 'GSB CMIS Content Type Import',
+    'description' => 'GSB CMIS Content Type Import.',
+    'page callback' => 'gsb_cmis_content_type_import',
+    'page arguments' => array(1,2),
+    'access arguments' => array(1),
+    'access callback' => 'gsb_cmis_content_type_import_access',
+  );    
+  return $items;
+}
+
+function gsb_cmis_content_type_import_access($content_type) {
+  $token_key = variable_get('gsb_cmis_content_type_import_token', '');
+  if (!empty($_GET['token']) && !empty($token_key) && $_GET['token'] == $token_key) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+function gsb_cmis_content_type_import_load($content_type) {
+  if ($content_type != 'case') {
+    return FALSE;
+  }
+  $info = module_invoke_all('gsb_cmis_content_type_import_info');
+  return $info[$content_type];
+}
+
+function gsb_cmis_content_type_import($process_info, $uuid) {
+  $doc = gsb_cmis_api_getDocumentObject('default', $uuid);
+  $process_info['callback']($doc, $uuid);
+  return 'gsb_cmis_content_type_import complete';
+}
+
+function gsb_cmis_test_content_type_initial_import($content_type, $uuid) {
+  if ($content_type != 'case') {
+    return FALSE;
+  }
+  $info = module_invoke_all('gsb_cmis_content_type_import_info');
+  $docs = gsb_cmis_api_getDocuments('default', $uuid);
+  foreach ($docs as $doc) {
+    $info[$content_type]['callback']($doc, $doc->uuid);
+  }
+}
