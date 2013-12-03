@@ -16,7 +16,7 @@ function gsb_cmis_drush_command() {
       'uuid' => 'The document uuid',
     ),    
     'examples' => array(
-      'drush --user=1 gsbcmis-ctimport' => 'Import all docs from a specific Alfresco folder, as the admin user.',
+      'drush --user=1 gsbcmis-ctimport <uuid>' => 'Import all docs from a specific Alfresco folder, as the admin user.',
     ),    
     'aliases' => array('gsbcmis-ctimport'),
   ); 
