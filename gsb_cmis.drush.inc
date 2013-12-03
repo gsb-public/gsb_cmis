@@ -12,6 +12,12 @@ function gsb_cmis_drush_command() {
   $items = array();
   $items['gsb-cmis-ct-import'] = array(
     'description' => 'GSB CMIS Content Type Initial Import',
+    'arguments' => array(
+      'uuid' => 'The document uuid',
+    ),    
+    'examples' => array(
+      'drush --user=1 gsbcmis-ctimport' => 'Import all docs from a specific Alfresco folder, as the admin user.',
+    ),    
     'aliases' => array('gsbcmis-ctimport'),
   ); 
   return $items;
@@ -30,18 +36,25 @@ function gsb_cmis_drush_help($command) {
 /**
  * Runs the gsb cmsi test doit command
  */
-function drush_gsb_cmis_ct_import() {
-  
+function drush_gsb_cmis_ct_import($uuid = '') {
+
+  if ($uuid == '') {
+    drush_log(dt('gsb cmis content type initial import failed - no uuid'), 'error'); 
+    return; 
+  }
+
+  dpm('uuid = ' . $uuid);
+
   $content_type = 'case';
   gsb_cmis_test_content_type_initial_import(
     $content_type, 
     // QA - Greg (test) folder
-    //46de00be-f68f-4d90-a05c-cf9213880386
-    'urn:uuid:46de00be-f68f-4d90-a05c-cf9213880386'
+    //'urn:uuid:46de00be-f68f-4d90-a05c-cf9213880386'
+    $uuid
   ); 
   
   // log to the command line with an OK status
-  drush_log(dt('gsb cmis content type initial import command complete'), 'ok');  
+  drush_log(dt('gsb cmis content type initial import command - completed'), 'ok');  
   
 }
 
