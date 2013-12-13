@@ -14,9 +14,10 @@ function gsb_cmis_drush_command() {
     'description' => 'GSB CMIS Content Type Initial Import',
     'arguments' => array(
       'uuid' => 'The document uuid',
+      'content-type' => 'The content type',
     ),    
     'examples' => array(
-      'drush --user=1 gsbcmis-ctimport <uuid>' => 'Import all docs from a specific Alfresco folder, as the admin user.',
+      'drush --user=1 gsbcmis-ctimport <uuid> <content-type>' => 'Import all docs from a specific Alfresco folder, as the admin user.',
     ),    
     'aliases' => array('gsbcmis-ctimport'),
   ); 
@@ -36,7 +37,7 @@ function gsb_cmis_drush_help($command) {
 /**
  * Runs the gsb cmsi test doit command
  */
-function drush_gsb_cmis_ct_import($uuid = '') {
+function drush_gsb_cmis_ct_import($uuid = '', $content_type = '') {
 
   if ($uuid == '') {
     drush_log(dt('gsb cmis content type initial import failed - no uuid'), 'error'); 
@@ -45,21 +46,15 @@ function drush_gsb_cmis_ct_import($uuid = '') {
 
   dpm('uuid = ' . $uuid);
 
-  $content_type = 'case';
-  gsb_cmis_content_type_initial_import(
-    $content_type, 
-    // QA - Greg (test) folder
-    //'urn:uuid:46de00be-f68f-4d90-a05c-cf9213880386'
-    $uuid
-  ); 
+  // $content_type should be 'case' or 'working_paper'
+  if ($content_type != 'case' && $content_type != 'working_paper') {
+    drush_log(dt('gsb cmis content type initial import failed - invalid content type'), 'error'); 
+    return; 
+  }
 
-  $content_type = 'working_paper';
-  gsb_cmis_content_type_initial_import(
-    $content_type, 
-    // QA - Greg (test) folder
-    //'urn:uuid:46de00be-f68f-4d90-a05c-cf9213880386'
-    $uuid
-  );   
+  dpm('content type = ' . $content_type);
+
+  gsb_cmis_content_type_initial_import($content_type, $uuid);   
   
   // log to the command line with an OK status
   drush_log(dt('gsb cmis content type initial import command - completed'), 'ok');  
