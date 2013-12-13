@@ -46,12 +46,20 @@ function drush_gsb_cmis_ct_import($uuid = '') {
   dpm('uuid = ' . $uuid);
 
   $content_type = 'case';
-  gsb_cmis_test_content_type_initial_import(
+  gsb_cmis_content_type_initial_import(
     $content_type, 
     // QA - Greg (test) folder
     //'urn:uuid:46de00be-f68f-4d90-a05c-cf9213880386'
     $uuid
   ); 
+
+  $content_type = 'working_paper';
+  gsb_cmis_content_type_initial_import(
+    $content_type, 
+    // QA - Greg (test) folder
+    //'urn:uuid:46de00be-f68f-4d90-a05c-cf9213880386'
+    $uuid
+  );   
   
   // log to the command line with an OK status
   drush_log(dt('gsb cmis content type initial import command - completed'), 'ok');  

@@ -30,7 +30,7 @@ function gsb_cmis_content_type_import_access($content_type) {
 }
 
 function gsb_cmis_content_type_import_load($content_type) {
-  if ($content_type != 'case') {
+  if ($content_type != 'case' && $content_type != 'working_paper') {
     return FALSE;
   }
   $info = module_invoke_all('gsb_cmis_content_type_import_info');
@@ -43,8 +43,8 @@ function gsb_cmis_content_type_import($process_info, $uuid) {
   return 'gsb_cmis_content_type_import complete';
 }
 
-function gsb_cmis_test_content_type_initial_import($content_type, $uuid) {
-  if ($content_type != 'case') {
+function gsb_cmis_content_type_initial_import($content_type, $uuid) {
+  if ($content_type != 'case' && $content_type != 'working_paper') {
     return FALSE;
   }
   $info = module_invoke_all('gsb_cmis_content_type_import_info');

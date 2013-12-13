@@ -7,3 +7,10 @@ dependencies[] = cmis_common
 dependencies[] = gsb_cmis_api
 
 
+
+
+; Information added by drush on 2013-12-12
+version = "release-3.0-dev"
+project = "gsb_cmis"
+datestamp = "1386888895"
+
