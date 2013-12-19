@@ -30,6 +30,7 @@ function gsb_cmis_content_type_import_access($content_type) {
 }
 
 function gsb_cmis_content_type_import_load($content_type) {
+  $content_type = str_replace("working-paper", "working_paper", $content_type);
   if ($content_type != 'case' && $content_type != 'working_paper') {
     return FALSE;
   }
