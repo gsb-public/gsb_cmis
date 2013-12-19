@@ -39,7 +39,7 @@ function gsb_cmis_content_type_import_load($content_type) {
 
 function gsb_cmis_content_type_import($process_info, $uuid) {
   $doc = gsb_cmis_api_getDocumentObject('default', $uuid);
-  $process_info['callback']($doc, $uuid);
+  $process_info[$content_type]['callback']($doc, $uuid);
   return 'gsb_cmis_content_type_import complete';
 }
 
