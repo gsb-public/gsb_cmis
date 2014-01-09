@@ -39,12 +39,15 @@ function gsb_cmis_drush_help($command) {
  */
 function drush_gsb_cmis_ct_import($uuid = '', $content_type = '') {
 
+  drush_log(dt('-------------------------------'), 'success');
+
   if ($uuid == '') {
     drush_log(dt('gsb cmis content type initial import failed - no uuid'), 'error'); 
     return; 
   }
 
-  dpm('uuid = ' . $uuid);
+  //dpm('uuid = ' . $uuid);
+  drush_log(dt('uuid = '.$uuid), 'success'); 
 
   // $content_type should be 'case' or 'working_paper'
   if ($content_type != 'case' && $content_type != 'working_paper') {
@@ -52,7 +55,8 @@ function drush_gsb_cmis_ct_import($uuid = '', $content_type = '') {
     return; 
   }
 
-  dpm('content type = ' . $content_type);
+  //dpm('content type = ' . $content_type);
+  drush_log(dt('content type = ' . $content_type), 'success'); 
 
   gsb_cmis_content_type_initial_import($content_type, $uuid);   
   
@@ -60,4 +64,3 @@ function drush_gsb_cmis_ct_import($uuid = '', $content_type = '') {
   drush_log(dt('gsb cmis content type initial import command - completed'), 'ok');  
   
 }
-
