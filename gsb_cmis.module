@@ -17,9 +17,63 @@ function gsb_cmis_menu() {
     'page arguments' => array(1,2),
     'access arguments' => array(1),
     'access callback' => 'gsb_cmis_content_type_import_access',
-  );    
+  );
+  $items['gsb-cmis/test'] = array(
+    'title' => 'GSB CMIS Content Type Test Import',
+    'description' => 'GSB CMIS Content Type Test Import.',
+    'page callback' => 'gsb_cmis_content_type_test_import',
+    'access callback' => TRUE,
+  );
   return $items;
 }
+
+function gsb_cmis_content_type_test_import() {
+
+  //drush_gsb_cmis_ct_import('urn:uuid:3bbd0fb2-0014-4c1c-af7b-b088c14078d1', 'case');
+  gsb_cmis_content_type_initial_import('case', 'urn:uuid:3bbd0fb2-0014-4c1c-af7b-b088c14078d1');
+  
+  return;
+
+  // wee...... 
+
+  $uuid = 'urn:uuid:8c7bb726-a705-4bf7-8c0c-e8c3156df13d';
+
+  $query = new EntityFieldQuery();
+  $query->fieldCondition('field_document_uuid', 'value', $uuid, '=')->range(0, 1);
+  $entities = $query->execute();
+
+  if (!empty($entities['node'])) {
+    $nids = array_keys($entities['node']);
+    $node = node_load(array_shift($nids));
+  } else {
+    $values = array(
+      'type' => 'case',
+      'uid' => $user->uid,
+      'status' => 1,
+      'comment' => 1,
+      'promote' => 0,
+    );
+    $node = entity_create('node', $values);
+  }
+
+  if ($node->type != 'case') {
+    return;
+  }
+
+  $ewrapper = entity_metadata_wrapper('node', $node);
+
+  //$ewrapper->field_description->set('');
+  $ewrapper->field_description = array(
+	  'value' => 'My new body text value',
+	  'format' => 'full_html',
+  );
+
+  $fred = 'test';
+
+  $ewrapper->save();
+
+}
+
 
 function gsb_cmis_content_type_import_access($content_type) {
   $token_key = variable_get('gsb_cmis_content_type_import_token', '');
@@ -39,18 +93,188 @@ function gsb_cmis_content_type_import_load($content_type) {
 }
 
 function gsb_cmis_content_type_import($process_info, $uuid) {
+
   $doc = gsb_cmis_api_getDocumentObject('default', $uuid);
-  $process_info[$content_type]['callback']($doc, $uuid);
+  //$process_info[$content_type]['callback']($doc, $uuid);
+  $process_info['callback']($doc, $uuid);
   return 'gsb_cmis_content_type_import complete';
+  
 }
 
-function gsb_cmis_content_type_initial_import($content_type, $uuid) {
+function gsb_cmis_content_type_initial_import_old($content_type, $uuid) {
   if ($content_type != 'case' && $content_type != 'working_paper') {
     return FALSE;
   }
+
   $info = module_invoke_all('gsb_cmis_content_type_import_info');
   $docs = gsb_cmis_api_getDocuments('default', $uuid);
+
   foreach ($docs as $doc) {
     $info[$content_type]['callback']($doc, $doc->uuid);
   }
+}
+
+// drush gsbcmis-ctimport --user=1 urn:uuid:7dd6590d-b53f-41e1-9e9e-e3e31cc14709 case
+
+function gsb_cmis_content_type_initial_import($content_type, $uuid) {
+
+  if ($content_type != 'case' && $content_type != 'working_paper') {
+    return FALSE;
+  }
+
+  $info = module_invoke_all('gsb_cmis_content_type_import_info');
+
+  // get top-level folder documents
+
+  $start_time = time_mark();
+  $docs = gsb_cmis_api_getTopLevelFolders('default', $uuid);
+  drush_log(dt('top level count of docs = '. count($docs)), 'success');
+  time_message('time = ', $start_time, time_mark());
+
+  foreach ($docs as $doc) {
+    drush_log(dt('top-level folder uuid = '.$doc->uuid), 'success');
+    $doc_ids[] = $doc->uuid;
+  }  
+
+  // get top-level non folder documents
+
+  drush_log(dt('-------------------------------'), 'success');  
+
+  $start_time = time_mark();
+  $other_subdocs = _gsb_cmis_api_getTopLevelObjects('default', $uuid);
+  drush_log(dt('additional top-level docs count = '.count($other_subdocs)), 'success');
+  time_message('additional top-level docs - time = ', $start_time, time_mark());
+  drush_log(dt('-------------------------------'), 'success');  
+
+  foreach ($other_subdocs as $doc) {
+    drush_log(dt('top-level non folder uuid = '.$doc->uuid), 'success');
+  }    
+
+  /*
+  $doc_ids = array(
+    "urn:uuid:6626d7d2-ff89-45e8-8661-d4a4462a94bf",
+    "urn:uuid:183bca69-21b2-453b-b93b-91290b5b3db2",
+    "urn:uuid:b6c7e81a-0c34-438a-a251-9a6fab7d250b",
+    "urn:uuid:745a30c7-0e65-441f-9dcc-15ac5c26f483",
+    "urn:uuid:853a8a32-055f-41ee-8c65-b04799584c06",
+    "urn:uuid:01cab7cf-fa1d-40f2-a3c8-1e39d4621644",
+    "urn:uuid:7fd3b179-977c-488f-a352-55fdd9cb8c8f",
+    "urn:uuid:3f480719-19cf-4a58-9ccf-fc23c96cd78b",
+    "urn:uuid:ffd5231b-1bc7-4f80-8619-ff1131caf461",
+    "urn:uuid:5592f80c-9000-4d23-ab66-aa2adb90173a",
+    "urn:uuid:774e6e65-5bdd-40d9-a02d-2ec1b61ae294",
+    "urn:uuid:d7230400-9d34-47f2-97d7-9c5ec81f7d45",
+    "urn:uuid:d37f93ab-8f51-44f4-96ce-ba00734c45c0",
+    "urn:uuid:5f4d661f-4e00-431e-8097-9d590d2e9bcf",
+    "urn:uuid:1c79d8ea-1711-45d4-bed3-eb628760d218",
+    "urn:uuid:d4b9d326-78f0-46ff-81b9-4d5680c17f51",
+    "urn:uuid:959d6ca2-e110-48ed-b24b-0abdce093569",
+    "urn:uuid:278f2a4b-f385-4d50-b8be-04b327fedc57",
+    "urn:uuid:6aede525-a508-4d09-8e49-fe8da6f18c96",
+    "urn:uuid:fe6e2741-9e63-432c-bf6a-7eefbcfbe64d",
+    "urn:uuid:d7765d68-f745-4c85-b4ec-cbef942a00a6",
+    "urn:uuid:6882bdf7-9b66-4324-be8d-05d085fc093c",
+    "urn:uuid:897cc468-3c1f-4e9b-803b-b147c7ee22d4",
+    "urn:uuid:a7923fb6-7620-410f-aaf9-55c501282f62",
+    "urn:uuid:28f98b8e-289e-4714-8bbd-6cc617dd29c6",
+    "urn:uuid:c606b1df-5a8b-47fe-82b4-99b7ad5e11df",
+    "urn:uuid:c98b1c1f-e219-4d08-809f-c05fe381e046",
+    "urn:uuid:78151e08-94fe-4605-a8ec-e317bb73a155",
+    "urn:uuid:0fbf613e-259a-4ce9-a889-41048b2fd9d1",
+    "urn:uuid:2e2d7af9-cc10-4a8d-8a24-bb3b779c3347",
+    "urn:uuid:959291ee-c5a4-48b0-b6e5-0517437b9235",
+    "urn:uuid:c4cb7f26-42ef-443e-a495-4ea2e2ca2fd0",
+    "urn:uuid:cab42db1-b32b-4ab7-a7a1-407b95181ee1",
+    "urn:uuid:b77a88ac-54c9-4fe7-8415-4ca8d4f85cc6",
+    "urn:uuid:f2261d58-e7ff-4b88-ae20-1d756766ff2e",
+    "urn:uuid:f5b427d4-4d32-49fc-b8eb-578cb217e662",
+    "urn:uuid:ff82e0a5-6042-41fa-bdec-8dbd95346fe6",
+    "urn:uuid:8af1ec31-f8ff-4a3e-809e-cd4d2fe01883",
+    "urn:uuid:69809bb5-560a-47b6-a211-a6581562d7cc",
+    "urn:uuid:d2f66175-843e-472d-a784-f0f2eb4bdf92",
+    "urn:uuid:3107dc4f-4af7-4a8d-9e14-a42870baf882",
+    "urn:uuid:22e08fd3-297d-4a70-a73a-03a939333198",
+    "urn:uuid:eb379a32-b890-4b4c-9524-55845d68216c",
+    "urn:uuid:23c449f1-5ba6-4406-92bf-9e7022383f43",
+    "urn:uuid:8d58ec18-443c-4301-b134-8e10dd5c9ad1",
+    "urn:uuid:6d1a4aa1-1919-4608-8a09-0d103feb0063",
+    "urn:uuid:4db636cc-7399-45dd-b779-b6562a539590",
+    "urn:uuid:6ce31043-153e-4669-8a08-4894c942eceb",
+    "urn:uuid:f0492496-9fa4-4515-a36a-01058f109ba2",
+    "urn:uuid:14efea5e-9a70-4875-8952-65ff2c96dbd7",
+    "urn:uuid:e074c1db-03c0-41ec-9da0-20ed8b12ef55",
+    "urn:uuid:a3b44b59-0c51-493f-9f6e-8cea8dc23fd7",
+    "urn:uuid:b19d6ed2-fd8f-4e3f-85d2-ec57d50ced6c",
+    "urn:uuid:3bbd0fb2-0014-4c1c-af7b-b088c14078d1",
+    "urn:uuid:d52a1f1a-3924-4932-a235-e4bb5b7a9905",
+    "urn:uuid:25dab41f-65d9-4856-935f-cb0cca54e1a0",
+    "urn:uuid:2cf5a408-da67-44a6-b0d2-276c9fca6c78",
+    "urn:uuid:97d8496c-b994-432c-83ae-6cbcf6f5c3a7",
+    "urn:uuid:9b9eb148-1def-4f27-97fe-fbd82ef8af39",
+    //"urn:uuid:fb200647-8644-4158-be05-f67794b44356",
+    //"urn:uuid:33d9047d-744d-4399-9f71-6cb3b3dcdfeb",
+    //"urn:uuid:8d8304b6-4b11-4088-b4c9-ceeb93bb101b",
+    //"urn:uuid:74ef2495-9555-4374-a069-e30b39027b7e",
+    "urn:uuid:b5d0cb71-a0c0-4122-b3d6-4baf71415ced",
+    "urn:uuid:52c1a31d-f662-4c24-965a-669fa41d4baa",
+    "urn:uuid:8679e791-72d3-4279-b802-ef5a6a6e1a43",
+    "urn:uuid:c58eddde-1aac-4646-89c8-fd188d74fd86",
+  );
+  */
+
+  /*
+  $doc_ids = array(  
+    "urn:uuid:b19d6ed2-fd8f-4e3f-85d2-ec57d50ced6c",
+  );
+  */
+
+  // process top-level folder documents
+
+  drush_log(dt('-------------------------------'), 'success');
+
+  foreach ($doc_ids as $doc_id) {
+
+    drush_log(dt('processing uuid = '.$doc_id), 'success');     
+
+    $start_time = time_mark();
+    $sub_docs = gsb_cmis_api_getDocuments('default', $doc_id);
+    drush_log(dt('count of sub docs = '. count($sub_docs)), 'success');
+    time_message('time = ', $start_time, time_mark());
+    drush_log(dt('-------------------------------'), 'success');
+
+    $start_time = time_mark();
+    foreach ($sub_docs as $sub_doc) {
+      $info[$content_type]['callback']($sub_doc, $sub_doc->uuid);
+    }
+    time_message('created nodes - time = ', $start_time, time_mark());
+    drush_log(dt('-------------------------------'), 'success');
+
+  }
+
+  // process top-level non folder documents
+
+  $start_time = time_mark();
+  foreach ($other_subdocs as $sub_doc) {
+    drush_log(dt('processing non folder uuid = '.$sub_doc->uuid), 'success');    
+    $info[$content_type]['callback']($sub_doc, $sub_doc->uuid);
+  }
+  time_message('created nodes - time = ', $start_time, time_mark());
+  drush_log(dt('-------------------------------'), 'success');
+
+}
+
+function time_mark() {
+
+  $time = microtime();
+  $time = explode(' ', $time);
+  $time = $time[1] + $time[0];
+
+  $start = $time; 
+
+  return $start;
+}
+
+function time_message($message, $start_time, $end_time) {
+  $total_time = round(($end_time - $start_time), 4);
+  drush_log(dt($message.$total_time), 'success');
 }
