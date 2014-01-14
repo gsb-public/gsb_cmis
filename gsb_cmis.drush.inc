@@ -60,6 +60,10 @@ function drush_gsb_cmis_gsb_import_test($uuid = '', $content_type = '') {
   // works - drush gsb-import-test --user=1 urn:uuid:3224db1c-5db0-484a-a7e3-fb6bbc140df7 case
   // doesn't work - gsb-cmis/case/urn:uuid:3224db1c-5db0-484a-a7e3-fb6bbc140df7?token=qpxmjue3mZ
 
+
+  // gsbcmis-ctimport
+  // drush gsbcmis-ctimport --user=1 urn:uuid:3224db1c-5db0-484a-a7e3-fb6bbc140df7 case
+
   dpm('test 1 begin -------------');
 
   $object = gsb_cmis_api_getDocumentObject('default', 'urn:uuid:3224db1c-5db0-484a-a7e3-fb6bbc140df7');
