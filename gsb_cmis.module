@@ -134,7 +134,7 @@ function time_message($message, $start_time, $end_time) {
 function gsb_cmis_log($message, $type = 'notice', $error = null) {
 
   if (function_exists('drush_log')) {
-    drush_log($message, $type, $error);
+    drush_log(dt($message), $type, $error);
   } 
   elseif (function_exists('dpm')) {
     dpm($message);
