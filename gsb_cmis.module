@@ -157,3 +157,14 @@ function time_message($message, $start_time, $end_time) {
   $total_time = round(($end_time - $start_time), 4);
   drush_log(dt($message.$total_time), 'success');
 }
+
+function gsb_cmis_log($message, $type = 'notice', $error = null) {
+
+  if (function_exists('drush_log')) {
+    drush_log($message, $type, $error);
+  } 
+  elseif (function_exists('dpm')) {
+    dpm($message);
+  }
+
+}  
