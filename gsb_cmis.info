@@ -21,3 +21,10 @@ version = "3.0"
 project = "gsb_cmis"
 datestamp = "1389023999"
 
+
+
+; Information added by drush on 2014-01-13
+version = "WP-2606-dev"
+project = "gsb_cmis"
+datestamp = "1389638561"
+
