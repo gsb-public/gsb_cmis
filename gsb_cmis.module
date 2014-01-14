@@ -18,34 +18,7 @@ function gsb_cmis_menu() {
     'access arguments' => array(1),
     'access callback' => 'gsb_cmis_content_type_import_access',
   );
-  $items['gsb-cmis/test'] = array(
-    'title' => 'GSB CMIS Content Type Test Import',
-    'description' => 'GSB CMIS Content Type Test Import.',
-    'page callback' => 'gsb_cmis_content_type_test_import',
-    'access callback' => TRUE,
-  );  
   return $items;
-}
-
-function gsb_cmis_content_type_test_import() {
-
-  // on prod
-  // works - drush gsb-import-test --user=1 urn:uuid:6882bdf7-9b66-4324-be8d-05d085fc093c case
-  // works - drush gsb-import-test --user=1 urn:uuid:fb200647-8644-4158-be05-f67794b44356 case
-  // doesn't work - gsb-cmis/case/urn:uuid:6882bdf7-9b66-4324-be8d-05d085fc093c?token=qpxmjue3mZ
-  // doesn't work - gsb-cmis/case/urn:uuid:fb200647-8644-4158-be05-f67794b44356?token=qpxmjue3mZ
-
-  // on qa
-  // works - drush gsb-import-test --user=1 urn:uuid:3224db1c-5db0-484a-a7e3-fb6bbc140df7 case
-  // doesn't work - gsb-cmis/case/urn:uuid:3224db1c-5db0-484a-a7e3-fb6bbc140df7?token=qpxmjue3mZ
-
-  dpm('test 2 begin -------------');
-
-  $object = gsb_cmis_api_getDocumentObject('default', 'urn:uuid:3224db1c-5db0-484a-a7e3-fb6bbc140df7');
-  dpm($object);
-
-  dpm('test 2 done --------------------');
-
 }
 
 function gsb_cmis_content_type_import_access($content_type) {
