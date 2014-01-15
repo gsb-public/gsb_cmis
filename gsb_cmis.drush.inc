@@ -21,7 +21,40 @@ function gsb_cmis_drush_command() {
     ),    
     'aliases' => array('gsbcmis-ctimport'),
   ); 
+  $items['gsb-import-test'] = array(
+     'description' => 'GSB Import Test',
+     'arguments' => array(
+       'uuid' => 'The document uuid',
+       'content-type' => 'The content type',
+     ),    
+     'examples' => array(
+       'drush --user=1 gsb-import-test <uuid> <content-type>' => 'Import all docs from a specific Alfresco folder, as the admin user.',
+     ),    
+     'aliases' => array('gsb-import-test'),
+  );     
   return $items;
+}
+
+function drush_gsb_cmis_gsb_import_test($uuid = '', $content_type = '') {
+
+  // drush6 gsb-import-test --user=1 urn:uuid qa
+
+  drush_log('test 1 begin -------------','success');
+
+  drush_log('content_type = '.$content_type,'success');
+
+  if ($content_type == 'prod') {
+    //prod folder - 
+    $object = gsb_cmis_api_getDocumentObject('default', 'urn:uuid:f0afc9f2-eefa-49fc-b6b2-5661b1934985');
+  } else {
+    // qa item - 
+    $object = gsb_cmis_api_getDocumentObject('default', 'urn:uuid:46de00be-f68f-4d90-a05c-cf9213880386');    
+  }
+
+  dpm($object);
+
+  drush_log('test 1 done --------------------','success');
+
 }
 
 /**
