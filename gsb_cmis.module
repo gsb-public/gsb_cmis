@@ -39,7 +39,12 @@ function gsb_cmis_content_type_import_load($content_type) {
 }
 
 function gsb_cmis_content_type_import($process_info, $uuid) {
+  watchdog('gsb_cmis_content_type_import', 'at gsb_cmis_content_type_import 0 uuid = ' . $uuid);
   $doc = gsb_cmis_api_getDocumentObject('default', $uuid);
+  watchdog('gsb_cmis_content_type_import', 'at gsb_cmis_content_type_import 1a doc->id = ' . $doc->id);
+  watchdog('gsb_cmis_content_type_import', 'at gsb_cmis_content_type_import 1b doc name = ' . $doc->properties['cmis:name']);
+  watchdog('gsb_cmis_content_type_import', 'at gsb_cmis_content_type_import 1c doc objectId = ' . $doc->properties['cmis:objectId']);
+  watchdog('gsb_cmis_content_type_import', 'at gsb_cmis_content_type_import 1d doc gsb:cwoProductType = ' . $doc->properties['gsb:cwoProductType']);
   $process_info['callback']($doc, $uuid);
   return 'gsb_cmis_content_type_import complete';
 }
