@@ -36,6 +36,10 @@ function gsb_cmis_menu() {
   return $items;
 }
 
+function gsb_cmis_get_alfresco_doc_access($content_type) {
+  return TRUE;
+}
+
 function gsb_cmis_content_type_import_access($content_type) {
   $token_key = variable_get('gsb_cmis_content_type_import_token', '');
   if (!empty($_GET['token']) && !empty($token_key) && $_GET['token'] == $token_key) {

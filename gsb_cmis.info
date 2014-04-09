@@ -4,6 +4,7 @@ core = 7.x
 package = GSB
 dependencies[] = cmis
 dependencies[] = cmis_common
+dependencies[] = cmis_browser
 dependencies[] = gsb_cmis_api
 
 
