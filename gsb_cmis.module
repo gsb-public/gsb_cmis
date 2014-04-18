@@ -31,9 +31,20 @@ function gsb_cmis_menu() {
     'description' => 'GSB CMIS Download Document',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('gsb_cmis_download_doc',2),    
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('access gsb_cmis_download_doc'),
   );    
   return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function gsb_cmis_permission() {
+  return array(
+    'access gsb_cmis_download_doc' => array(
+      'title' => t('Access gsb_cmis_download_doc'),
+    ),
+  );
 }
 
 function gsb_cmis_content_type_import_access($content_type) {
