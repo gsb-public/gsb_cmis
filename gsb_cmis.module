@@ -204,7 +204,10 @@ function gsb_cmis_download_doc($form, $form_state, $node = null) {
 
   $language = $node->language;
 
-  $free_case = $node->field_free_case['und'][0]['value'];
+  $free_case = false;
+  if (!empty($node->field_free_case[$language])) {
+    $free_case = $node->field_free_case[$language][0]['value'];
+  }
 
   if (!$free_case) {
     if (!simplesaml_auth_user_is_logged_in()) {
