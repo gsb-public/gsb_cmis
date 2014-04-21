@@ -218,9 +218,7 @@ function gsb_cmis_download_doc($form, $form_state, $node = null) {
   $free_case = $node->field_free_case['und'][0]['value'];
 
   if (!$free_case) {
-    if (!simplesaml_auth_user_is_logged_in()) {
-      return;
-    }    
+    simplesaml_auth_login_check();
   }
 
   $uuid = $node->field_document_uuid[$language][0]['value'];
