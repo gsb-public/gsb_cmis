@@ -198,11 +198,7 @@ function gsb_cmis_get_alfresco_doc($uuid) {
   exit();
 }  
 
-function gsb_cmis_download_doc($form, $form_state, $node = null) {
-
-  if ($node == null) {
-    return;
-  }
+function gsb_cmis_download_doc($form, $form_state, $node) {
 
   $language = $node->language;
 
