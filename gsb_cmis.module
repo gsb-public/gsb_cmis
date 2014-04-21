@@ -10,7 +10,7 @@
  */
 function gsb_cmis_menu() {
   $items = array();
-  $items['gsb-cmis/%gsb_cmis_content_type_import/%'] = array(
+  $items['gsb-cmis/%gsb-cmis-content-type-import/%'] = array(
     'title' => 'GSB CMIS Content Type Import',
     'description' => 'GSB CMIS Content Type Import.',
     'page callback' => 'gsb_cmis_content_type_import',
@@ -18,20 +18,19 @@ function gsb_cmis_menu() {
     'access arguments' => array(1),
     'access callback' => 'gsb_cmis_content_type_import_access',
   );
-  $items['gsb-cmis/gsb_cmis_get_alfresco_doc/%'] = array(
+  $items['gsb-cmis/gsb-cmis-get-alfresco-doc/%'] = array(
     'title' => 'GSB CMIS Get Alfresco Document',
     'description' => 'GSB CMIS Get Alfresco Document',
     'page callback' => 'gsb_cmis_get_alfresco_doc',
     'page arguments' => array(2),
-    'access arguments' => array(1),
-    'access callback' => 'gsb_cmis_get_alfresco_doc_access',
+    'access callback' => TRUE,
   );
-  $items['gsb-cmis/gsb_cmis_download_doc/%node'] = array(
+  $items['gsb-cmis/gsb-cmis-download-doc/%node'] = array(
     'title' => 'GSB CMIS Download Document',
     'description' => 'GSB CMIS Download Document',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('gsb_cmis_download_doc',2),    
-    'access arguments' => array('access gsb_cmis_download_doc'),
+    'access callback' => TRUE,
   );    
   return $items;
 }
@@ -160,10 +159,6 @@ function gsb_cmis_log($message, $type = 'notice', $error = null) {
   }
 }  
 
-function gsb_cmis_get_alfresco_doc_access($content_type) {
-  return TRUE;
-}
-
 /**
  * Streams doc from Alfresco
  */
@@ -202,10 +197,6 @@ function gsb_cmis_get_alfresco_doc($uuid) {
 
   exit();
 }  
-
-function gsb_cmis_download_doc_access($content_type) {
-  return TRUE;
-}
 
 function gsb_cmis_download_doc($form, $form_state, $node = null) {
 
