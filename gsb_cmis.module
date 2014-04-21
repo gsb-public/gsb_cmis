@@ -31,13 +31,20 @@ function gsb_cmis_menu() {
     'description' => 'GSB CMIS Download Document',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('gsb_cmis_download_doc',2),    
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('access gsb_cmis_download_doc'),
   );    
   return $items;
 }
 
-function gsb_cmis_get_alfresco_doc_access($content_type) {
-  return TRUE;
+/**
+ * Implements hook_permission().
+ */
+function gsb_cmis_permission() {
+  return array(
+    'access gsb_cmis_download_doc' => array(
+      'title' => t('Access gsb_cmis_download_doc'),
+    ),
+  );
 }
 
 function gsb_cmis_content_type_import_access($content_type) {
@@ -208,15 +215,10 @@ function gsb_cmis_download_doc($form, $form_state, $node = null) {
 
   $language = $node->language;
 
-  $free_case = false;
-  if (!empty($node->field_free_case[$language])) {
-    $free_case = $node->field_free_case[$language][0]['value'];
-  }
+  $free_case = $node->field_free_case['und'][0]['value'];
 
   if (!$free_case) {
-    if (!simplesaml_auth_user_is_logged_in()) {
-      return;
-    }    
+    simplesaml_auth_login_check();
   }
 
   $uuid = $node->field_document_uuid[$language][0]['value'];
