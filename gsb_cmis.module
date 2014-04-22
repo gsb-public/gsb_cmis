@@ -18,33 +18,22 @@ function gsb_cmis_menu() {
     'access arguments' => array(1),
     'access callback' => 'gsb_cmis_content_type_import_access',
   );
-  $items['gsb-cmis/gsb_cmis_get_alfresco_doc/%'] = array(
+  $items['gsb-cmis/gsb-cmis-get-alfresco-doc/%'] = array(
     'title' => 'GSB CMIS Get Alfresco Document',
     'description' => 'GSB CMIS Get Alfresco Document',
     'page callback' => 'gsb_cmis_get_alfresco_doc',
     'page arguments' => array(2),
     'access arguments' => array(1),
-    'access callback' => 'gsb_cmis_get_alfresco_doc_access',
+    'access callback' => TRUE,
   );
-  $items['gsb-cmis/gsb_cmis_download_doc/%node'] = array(
+  $items['gsb-cmis/gsb-cmis-download-doc/%node'] = array(
     'title' => 'GSB CMIS Download Document',
     'description' => 'GSB CMIS Download Document',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('gsb_cmis_download_doc',2),    
-    'access arguments' => array('access gsb_cmis_download_doc'),
+    'access callback' => TRUE,
   );    
   return $items;
-}
-
-/**
- * Implements hook_permission().
- */
-function gsb_cmis_permission() {
-  return array(
-    'access gsb_cmis_download_doc' => array(
-      'title' => t('Access gsb_cmis_download_doc'),
-    ),
-  );
 }
 
 function gsb_cmis_content_type_import_access($content_type) {
@@ -160,10 +149,6 @@ function gsb_cmis_log($message, $type = 'notice', $error = null) {
   }
 }  
 
-function gsb_cmis_get_alfresco_doc_access($content_type) {
-  return TRUE;
-}
-
 /**
  * Streams doc from Alfresco
  */
@@ -203,11 +188,8 @@ function gsb_cmis_get_alfresco_doc($uuid) {
   exit();
 }  
 
-function gsb_cmis_download_doc_access($content_type) {
-  return TRUE;
-}
-
 function gsb_cmis_download_doc($form, $form_state, $node = null) {
+  watchdog('cmis testing', 'in gsb_cmis_download_doc');
 
   if ($node == null) {
     return;
@@ -215,10 +197,13 @@ function gsb_cmis_download_doc($form, $form_state, $node = null) {
 
   $language = $node->language;
 
-  $free_case = $node->field_free_case['und'][0]['value'];
+  $free_case = false;
+  if (!empty($node->field_free_case[$language])) {
+    $free_case = $node->field_free_case[$language][0]['value'];    
+  }
 
   if (!$free_case) {
-    simplesaml_auth_login_check();
+    gsb_cmis_check_simplesaml_auth();
   }
 
   $uuid = $node->field_document_uuid[$language][0]['value'];
@@ -240,3 +225,45 @@ function gsb_cmis_download_doc($form, $form_state, $node = null) {
 
   return $form;
 }
+
+/**
+ * Check if the user has gone thru simple saml auth
+ */
+function gsb_cmis_check_simplesaml_auth() {
+  watchdog('cmis testing', 'in gsb_cmis_check_simplesaml_auth');
+
+  global $user;
+  global $_simplesaml_auth_object;
+
+  if ($user->uid) {
+    //Don't Login  because we already are
+    return;
+  }
+
+  $basedir = variable_get('simplesaml_auth_installdir', '/var/simplesamlphp');
+  $basedir = token_replace($basedir);
+
+  $autoload_path = $basedir . '/lib/_autoload.php';
+  if (!file_exists($autoload_path)) {
+    watchdog('simplesaml_auth', 'Cannot find simplesaml at @basedir', array('@basedir' => $basedir));
+    return;
+  }
+  require_once($autoload_path);
+
+  // Initialize simplesamlphp.
+  $authsource = variable_get('simplesamlphp_auth_authsource', 'default-sp');
+
+  // Load simpleSAMLphp, configuration and metadata.
+  $_simplesaml_auth_object = new SimpleSAML_Auth_Simple($authsource);
+
+  // We're going to try simplesaml auth test
+  $options = array(
+    'ReturnTo' => $GLOBALS['base_url'] . '/' . request_path(),
+  );
+  $_simplesaml_auth_object->requireAuth($options);
+
+  $attributes = $_simplesaml_auth_object->getAttributes();
+
+  return; 
+}
+
