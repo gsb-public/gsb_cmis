@@ -18,12 +18,11 @@ function gsb_cmis_menu() {
     'access arguments' => array(1),
     'access callback' => 'gsb_cmis_content_type_import_access',
   );
-  $items['gsb-cmis/gsb-cmis-get-alfresco-doc/%'] = array(
+  $items['gsb-cmis/gsb-cmis-get-alfresco-doc/%node'] = array(
     'title' => 'GSB CMIS Get Alfresco Document',
     'description' => 'GSB CMIS Get Alfresco Document',
-    'page callback' => 'gsb_cmis_get_alfresco_doc',
-    'page arguments' => array(2),
-    'access arguments' => array(1),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('gsb_cmis_get_alfresco_doc',2),
     'access callback' => TRUE,
   );
   $items['gsb-cmis/gsb-cmis-download-doc/%node'] = array(
@@ -152,8 +151,26 @@ function gsb_cmis_log($message, $type = 'notice', $error = null) {
 /**
  * Streams doc from Alfresco
  */
-function gsb_cmis_get_alfresco_doc($uuid) {
+function gsb_cmis_get_alfresco_doc($form, $form_state, $node) {
   module_load_include('api.inc', 'cmis');
+
+  if ($node == null) {
+    return;
+  }
+
+  $language = $node->language;
+
+  $free_case = false;
+  if (!empty($node->field_free_case[$language])) {
+    $free_case = $node->field_free_case[$language][0]['value'];    
+  }
+
+  if (!$free_case) {
+    $simplesaml_auth_object = simplesaml_auth_login_check();
+    $attributes = $simplesaml_auth_object->getAttributes();
+  }  
+
+  $uuid = $node->field_document_uuid[$language][0]['value'];
 
   // get the repository and object
 
@@ -189,7 +206,6 @@ function gsb_cmis_get_alfresco_doc($uuid) {
 }  
 
 function gsb_cmis_download_doc($form, $form_state, $node = null) {
-  watchdog('cmis testing', 'in gsb_cmis_download_doc');
 
   if ($node == null) {
     return;
@@ -203,10 +219,9 @@ function gsb_cmis_download_doc($form, $form_state, $node = null) {
   }
 
   if (!$free_case) {
-    gsb_cmis_check_simplesaml_auth();
+    $simplesaml_auth_object = simplesaml_auth_login_check();
+    $attributes = $simplesaml_auth_object->getAttributes();
   }
-
-  $uuid = $node->field_document_uuid[$language][0]['value'];
 
   $form['stuff'] = array(
     '#type' => 'markup',
@@ -218,7 +233,7 @@ function gsb_cmis_download_doc($form, $form_state, $node = null) {
     'type' => 'setting',
     'data' => array(
       'alfresco_document' => array(
-        'uuid' => $uuid,
+        'nid' => $node->nid,
       ),
     ),
   );  
@@ -230,7 +245,6 @@ function gsb_cmis_download_doc($form, $form_state, $node = null) {
  * Check if the user has gone thru simple saml auth
  */
 function gsb_cmis_check_simplesaml_auth() {
-  watchdog('cmis testing', 'in gsb_cmis_check_simplesaml_auth');
 
   global $user;
   global $_simplesaml_auth_object;

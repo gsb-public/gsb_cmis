@@ -4,8 +4,8 @@
 (function($){
   Drupal.behaviors.gsbCMIS = {
     attach: function (context, settings) {
-    	var uuid = settings.alfresco_document.uuid;
-      var url = Drupal.settings.basePath + 'gsb-cmis/gsb-cmis-get-alfresco-doc/' + uuid;
+    	var nid = settings.alfresco_document.nid;
+      var url = Drupal.settings.basePath + 'gsb-cmis/gsb-cmis-get-alfresco-doc/' + nid;
       window.location.replace(url);	
     }
   };
