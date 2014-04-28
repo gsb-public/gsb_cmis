@@ -160,7 +160,7 @@ function gsb_cmis_get_alfresco_doc($form, $form_state, $node) {
 
   $language = $node->language;
 
-  if (!gsb_cmis_check_simplesaml_auth($node)) {
+  if ($node->type == 'case' && !gsb_cmis_check_simplesaml_auth($node)) {
     return;
   }
 
@@ -207,7 +207,7 @@ function gsb_cmis_download_doc($form, $form_state, $node = null) {
 
   $language = $node->language;
 
-  if (!gsb_cmis_check_simplesaml_auth($node)) {
+  if ($node->type == 'case' && !gsb_cmis_check_simplesaml_auth($node)) {
     return;
   }
 
@@ -249,20 +249,20 @@ function gsb_cmis_check_simplesaml_auth($node) {
     $simplesaml_auth_object = simplesaml_auth_login_check();
     $attributes = $simplesaml_auth_object->getAttributes();
     if (empty($attributes['urn:oid:1.3.6.1.4.1.5923.1.1.1.7'])) {
-      watchdog('gsb_cmis', 'attribute has no working_groups');
+      watchdog('gsb_cmis', 'attribute has no workgroups');
       return false;
     } else {
-      $working_groups = $attributes['urn:oid:1.3.6.1.4.1.5923.1.1.1.7'];
+      $workgroups = $attributes['urn:oid:1.3.6.1.4.1.5923.1.1.1.7'];
       $approved_workgroups = variable_get('gsb_cmis_approved_workgroups', array());
       $has_approved_workgroup = false;
       foreach ($approved_workgroups as $awg) {
-        if (in_array($awg, $working_groups)) {
+        if (in_array($awg, $workgroups)) {
           $has_approved_workgroup = true;
           break;
         }        
       }
       if (!$has_approved_workgroup) {
-        watchdog('gsb_cmis', 'attribute has no working_groups');
+        watchdog('gsb_cmis', 'attribute has no workgroups');
         return false;
       }
     }
