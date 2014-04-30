@@ -279,7 +279,7 @@ function gsb_cmis_check_simplesaml_auth($node) {
 function gsb_cmis_field_extra_fields() {
   $extra = array();
   foreach(array('case','working_paper') as $node_type) {
-    $extra['node']['case']['display']['gsb_cmis_download_button'] = array(
+    $extra['node'][$node_type]['display']['gsb_cmis_download_button'] = array(
       'label' => t('GSB CMIS Download Button'),
       'description' => t('The GSB CMIS download button'),
       'weight' => 0,
