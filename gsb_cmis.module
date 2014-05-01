@@ -19,14 +19,14 @@ function gsb_cmis_menu() {
     'access callback' => 'gsb_cmis_content_type_import_access',
   );
   $items['gsb-cmis/gsb-cmis-get-alfresco-doc/%node'] = array(
-    'title' => 'GSB CMIS Get Alfresco Document',
+    'title' => 'GSB CMIS Get Alfresco Document xyz',
     'description' => 'GSB CMIS Get Alfresco Document',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('gsb_cmis_get_alfresco_doc',2),
     'access callback' => TRUE,
   );
   $items['gsb-cmis/gsb-cmis-download-doc/%node'] = array(
-    'title' => 'GSB CMIS Download Document',
+    'title' => 'GSB CMIS Download Document abc',
     'description' => 'GSB CMIS Download Document',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('gsb_cmis_download_doc',2),    
@@ -213,10 +213,17 @@ function gsb_cmis_download_doc($form, $form_state, $node = null) {
 
   $form['stuff'] = array(
     '#type' => 'markup',
-    '#markup' => 'Downloading document...',
+    '#markup' => 
+      '<div class="left"><h2 class="page-title">Downloading document...</h2></div>' .
+      '<div class="error-wrapper not-found">' .
+        '<p>&nbsp;</p>' . 
+        '<p class="larger-text">The document requested <i>"' . $node->title . '"</i> should download momentarily.</p>' .
+        '<p class="larger-text">Please close this window when it is complete.</p>' .
+        '<p class="larger-text close-window"><a href="" class="active">Close window</a></p>' .
+      '</div>',
   );
 
-  $form['#attached']['js'][] = drupal_get_path('module', 'gsb_cmis') . '/js/gsb_cmis.js';
+  $form['#attached']['js'][drupal_get_path('module', 'gsb_cmis') . '/js/gsb_cmis.js'] = array('scope' => 'footer');
   $form['#attached']['js'][] = array(
     'type' => 'setting',
     'data' => array(
