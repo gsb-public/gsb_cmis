@@ -19,14 +19,14 @@ function gsb_cmis_menu() {
     'access callback' => 'gsb_cmis_content_type_import_access',
   );
   $items['gsb-cmis/gsb-cmis-get-alfresco-doc/%node'] = array(
-    'title' => 'GSB CMIS Get Alfresco Document xyz',
+    'title' => 'GSB CMIS Get Alfresco Document',
     'description' => 'GSB CMIS Get Alfresco Document',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('gsb_cmis_get_alfresco_doc',2),
     'access callback' => TRUE,
   );
   $items['gsb-cmis/gsb-cmis-download-doc/%node'] = array(
-    'title' => 'GSB CMIS Download Document abc',
+    'title' => 'GSB CMIS Download Document',
     'description' => 'GSB CMIS Download Document',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('gsb_cmis_download_doc',2),    
