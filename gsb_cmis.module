@@ -19,8 +19,8 @@ function gsb_cmis_menu() {
     'access callback' => 'gsb_cmis_content_type_import_access',
   );
   $items['gsb-cmis/gsb-cmis-get-alfresco-doc/%node'] = array(
-    'title' => 'GSB CMIS Get Alfresco Document',
-    'description' => 'GSB CMIS Get Alfresco Document',
+    'title' => 'Downloading document...',
+    'description' => 'Downloading document...',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('gsb_cmis_get_alfresco_doc',2),
     'access callback' => TRUE,
@@ -171,16 +171,24 @@ function gsb_cmis_get_alfresco_doc($form, $form_state, $node) {
   $repository_name = 'default';
   $repository = cmis_get_repository($repository_name);
 
-  $object = gsb_cmis_api_getDocumentObject($repository_name, $uuid); 
-  
   try {
+    // get the object with the given uuid
+    $object = gsb_cmis_api_getDocumentObject($repository_name, $uuid);
     // stream the doc
     $content = cmisapi_getContentStream($repository->repositoryId, $object->id);
   }
   catch (CMISException $e) {
-    cmis_error_handler('cmis_browser_content_get', $e);
-    drupal_add_http_header('', 'HTTP/1.1 503 Service unavailable');
-    exit();
+    $object_not_found = strstr($e->getMessage(),'Unable to find object workspace:');
+    if (!empty($object_not_found)) {
+      $product_type = '';
+      if (!empty($node->field_product_type[$language][0])) {
+        $product_type = $node->field_product_type[$language][0]['value'];
+      }
+      drupal_set_message('Error - Unable to find ' . $product_type . ' document: ' . '"' . $node->title . '"', 'error');
+    } else {
+      cmis_error_handler('cmis_browser_content_get', $e);
+    }
+    return;
   }
   
   if (ob_get_level()) {
