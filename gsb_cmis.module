@@ -216,31 +216,39 @@ function gsb_cmis_download_doc($form, $form_state, $node = null) {
   $language = $node->language;
 
   if ($node->type == 'case' && !gsb_cmis_check_simplesaml_auth($node)) {
-    return;
-  }
-
-  $form['stuff'] = array(
-    '#type' => 'markup',
-    '#markup' => 
-      '<div class="left"><h2 class="page-title">Downloading document...</h2></div>' .
-      '<div class="error-wrapper not-found">' .
-        '<p>&nbsp;</p>' . 
-        '<p class="larger-text">The document requested <i>"' . $node->title . '"</i> should download momentarily.</p>' .
-        '<p class="larger-text">Please close this window when it is complete.</p>' .
-        '<p class="larger-text close-window"><a href="" class="active">Close window</a></p>' .
-      '</div>',
-  );
-
-  $form['#attached']['js'][drupal_get_path('module', 'gsb_cmis') . '/js/gsb_cmis.js'] = array('scope' => 'footer');
-  $form['#attached']['js'][] = array(
-    'type' => 'setting',
-    'data' => array(
-      'alfresco_document' => array(
-        'nid' => $node->nid,
+    $form['stuff'] = array(
+      '#type' => 'markup',
+      '#markup' => 
+        '<div class="left"><h2 class="page-title">Downloading document...</h2></div>' .
+        '<div class="error-wrapper not-found">' .
+          '<p>&nbsp;</p>' . 
+          '<p class="larger-text">Access for the document requested, <i>"' . $node->title . '"</i>, is available to the GSB community only.</p>' .
+          '<p class="larger-text close-window"><a href="" class="active">Close window</a></p>' .
+        '</div>',
+    );
+  } else {
+    $form['stuff'] = array(
+      '#type' => 'markup',
+      '#markup' => 
+        '<div class="left"><h2 class="page-title">Downloading document...</h2></div>' .
+        '<div class="error-wrapper not-found">' .
+          '<p>&nbsp;</p>' . 
+          '<p class="larger-text">The document requested <i>"' . $node->title . '"</i> should download momentarily.</p>' .
+          '<p class="larger-text">Please close this window when it is complete.</p>' .
+          '<p class="larger-text close-window"><a href="" class="active">Close window</a></p>' .
+        '</div>',
+    );
+    $form['#attached']['js'][drupal_get_path('module', 'gsb_cmis') . '/js/gsb_cmis.js'] = array('scope' => 'footer');
+    $form['#attached']['js'][] = array(
+      'type' => 'setting',
+      'data' => array(
+        'alfresco_document' => array(
+          'nid' => $node->nid,
+        ),
       ),
-    ),
-  );  
-
+    );      
+  }
+  
   return $form;
 }
 
@@ -261,7 +269,7 @@ function gsb_cmis_check_simplesaml_auth($node) {
   }
 
   if (!$free_case) {
-    $simplesaml_auth_object = simplesaml_auth_login_check();
+    $simplesaml_auth_object = simplesaml_auth_login_check(FALSE);
     $attributes = $simplesaml_auth_object->getAttributes();
     if (empty($attributes['urn:oid:1.3.6.1.4.1.5923.1.1.1.7'])) {
       watchdog('gsb_cmis', 'attribute has no workgroups');
