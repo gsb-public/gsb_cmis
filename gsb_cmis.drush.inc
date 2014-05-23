@@ -83,7 +83,7 @@ function drush_gsb_cmis_ct_import($uuid = '', $content_type = '') {
 
     $root_folder = '';
     if ($content_type == 'case') {
-      $root_folder = variable_get('gsb_feature_case_paper_ct_alfresco_folder', '/Case Writing/ITTest');
+      $root_folder = variable_get('gsb_feature_case_ct_alfresco_folder', '/Case Writing/ITTest');
     } else if ($content_type == 'working_paper') {
       $root_folder = variable_get('gsb_feature_working_paper_ct_alfresco_folder', '/Research Papers/ITTest');
     } else {
