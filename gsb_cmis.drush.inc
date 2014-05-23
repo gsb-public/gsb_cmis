@@ -71,12 +71,40 @@ function gsb_cmis_drush_help($command) {
  * Runs the GSB CMIS Content Type Initial Import command
  */
 function drush_gsb_cmis_ct_import($uuid = '', $content_type = '') {
+  module_load_include('api.inc', 'cmis');
 
   drush_log(dt('-------------------------------'), 'success');
 
   if ($uuid == '') {
-    drush_log(dt('gsb cmis content type initial import failed - no uuid'), 'error'); 
-    return; 
+
+    // use the ITTest folders
+
+    drush_log(dt('gsb cmis content type initial import - content_type = '.$content_type), 'status'); 
+
+    $root_folder = '';
+    if ($content_type == 'case') {
+      $root_folder = variable_get('gsb_feature_case_paper_ct_alfresco_folder', '/Case Writing/ITTest');
+    } else if ($content_type == 'working_paper') {
+      $root_folder = variable_get('gsb_feature_working_paper_ct_alfresco_folder', '/Research Papers/ITTest');
+    } else {
+      drush_log(dt('gsb cmis content type initial import failed - no uuid'), 'error'); 
+      return;
+    }
+
+    $folderObject = cmisapi_getObjectByPath($repository->repositoryId, drupal_encode_path($root_folder)); 
+    $objectId = $folderObject->properties['cmis:objectId'];
+    $uuid = str_replace('workspace://SpacesStore/', 'urn:uuid:', $objectId); 
+
+    drush_log(
+      dt('gsb cmis content type initial import - folder = ' . $root_folder . ' uuid = ' . $uuid), 
+      'status'
+    ); 
+
+    if ($uuid == '') {
+      drush_log(dt('gsb cmis content type initial import failed - no uuid'), 'error'); 
+      return;
+    } 
+
   }
 
   drush_log(dt('uuid = '.$uuid), 'success'); 
