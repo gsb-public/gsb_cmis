@@ -100,6 +100,16 @@ function gsb_cmis_content_type_initial_import($content_type, $uuid) {
 
     drush_log(dt('processing uuid = '.$doc_id), 'success');     
 
+    // ITTest Folder for Working Papers
+    if ($doc_id == 'urn:uuid:7e63d64d-5282-4ffc-91df-726304cb920f') {
+      continue;
+    }
+
+    // ITTest Folder for Cases
+    if ($doc_id == 'urn:uuid:5d948a5f-ff2c-4f8b-ac09-9adee8e52e42') {
+      continue;
+    }
+
     $start_time = time_mark();
     $sub_docs = gsb_cmis_api_getDocuments('default', $doc_id);
     drush_log(dt('count of sub docs = '. count($sub_docs)), 'success');
