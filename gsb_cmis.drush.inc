@@ -91,6 +91,9 @@ function drush_gsb_cmis_ct_import($uuid = '', $content_type = '') {
       return;
     }
 
+    $repository_name = 'default';
+    $repository = cmis_get_repository($repository_name);
+
     $folderObject = cmisapi_getObjectByPath($repository->repositoryId, drupal_encode_path($root_folder)); 
     $objectId = $folderObject->properties['cmis:objectId'];
     $uuid = str_replace('workspace://SpacesStore/', 'urn:uuid:', $objectId); 
