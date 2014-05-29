@@ -101,12 +101,14 @@ function gsb_cmis_content_type_initial_import($content_type, $uuid) {
     drush_log(dt('processing uuid = '.$doc_id), 'success');     
 
     // ITTest Folder for Working Papers
-    if ($doc_id == 'urn:uuid:7e63d64d-5282-4ffc-91df-726304cb920f') {
+    list($working_paper_test_folder, $case_test_folder) = _gsb_cmis_getITTestfolderUUIDs();
+
+    if ($doc_id == $working_paper_test_folder) {
       continue;
     }
 
     // ITTest Folder for Cases
-    if ($doc_id == 'urn:uuid:5d948a5f-ff2c-4f8b-ac09-9adee8e52e42') {
+    if ($doc_id == $case_test_folder) {
       continue;
     }
 
@@ -339,4 +341,40 @@ function gsb_cmis_node_view($node, $view_mode, $langcode) {
       '#markup' => '<div class="gsb-cmis-download-wrapper">' . '<a href="' . base_path() . 'gsb-cmis/gsb-cmis-download-doc/' . $node->nid . '" class="gsb-cmis-download-button" target="_blank">' . t('Download') . '</a>' . '</div>',
     );
   }
+}
+
+function _gsb_cmis_getITTestfolderUUIDs() {
+  module_load_include('api.inc', 'cmis');
+
+  $repository_name = 'default';
+
+  // get the Working Paper ITTest folder uuid
+
+  $cache = cache_get('gsb_cmis_working_paper_ct_alfresco_folder');
+
+  if ($cache && !empty($cache->data)) {
+    $uuid_working_paper_folder_uuid = $cache->data;
+  } else {
+    $repository = cmis_get_repository($repository_name);
+    $folderObject = cmisapi_getObjectByPath($repository->repositoryId, drupal_encode_path('/Research Papers/ITTest')); 
+    $objectId = $folderObject->properties['cmis:objectId'];
+    $uuid_working_paper_folder_uuid = str_replace('workspace://SpacesStore/', 'urn:uuid:', $objectId);      
+    $expire = REQUEST_TIME + (60*60*24);
+    cache_set('gsb_cmis_working_paper_ct_alfresco_folder', $uuid_working_paper_folder_uuid, 'cache', $expire);
+  }
+
+  $cache = cache_get('gsb_cmis_case_ct_alfresco_folder');
+
+  if ($cache && !empty($cache->data)) {
+    $uuid_case_folder_uuid = $cache->data;
+  } else {
+    $repository = cmis_get_repository($repository_name);
+    $folderObject = cmisapi_getObjectByPath($repository->repositoryId, drupal_encode_path('/Case Writing/ITTest')); 
+    $objectId = $folderObject->properties['cmis:objectId'];
+    $uuid_case_folder_uuid = str_replace('workspace://SpacesStore/', 'urn:uuid:', $objectId);      
+    $expire = REQUEST_TIME + (60*60*24);
+    cache_set('gsb_cmis_case_ct_alfresco_folder', $uuid_case_folder_uuid, 'cache', $expire);
+  }  
+
+  return array($uuid_working_paper_folder_uuid, $uuid_case_folder_uuid); 
 }
