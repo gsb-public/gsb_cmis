@@ -271,8 +271,6 @@ function gsb_cmis_download_doc($form, $form_state, $node = null) {
  */
 function gsb_cmis_check_simplesaml_auth($node) {
 
-  watchdog('gsb_cmis', 'gsb_cmis_check_simplesaml_auth - begin');
-
   $language = $node->language;
 
   $free_case = false;
@@ -302,8 +300,6 @@ function gsb_cmis_check_simplesaml_auth($node) {
       }
     }
   }
-
-  watchdog('gsb_cmis', 'gsb_cmis_check_simplesaml_auth - end');
 
   return true;
 }  
