@@ -294,6 +294,10 @@ function gsb_cmis_check_simplesaml_auth($node) {
           break;
         }        
       }
+      if (in_array('gsb-apps:nongsb-deny', $workgroups)) {
+        watchdog('gsb_cmis', 'attribute has deny workgroup');
+        return false;
+      }
       if (!$has_approved_workgroup) {
         watchdog('gsb_cmis', 'attribute has no workgroups');
         return false;
