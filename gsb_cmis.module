@@ -294,7 +294,7 @@ function gsb_cmis_check_simplesaml_auth($node) {
           break;
         }        
       }
-      if (in_array('gsb-apps:nongsb-deny', $workgroups)) {
+      if (in_array('gsb-apps:nongsb_deny', $workgroups)) {
         watchdog('gsb_cmis', 'attribute has deny workgroup');
         return false;
       }
