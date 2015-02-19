@@ -359,6 +359,7 @@ function gsb_cmis_download_auth($form, $form_state, $node = null) {
  *
  */
 function gsb_cmis_download_doc($form, $form_state, $node = null, $authtype = '') {
+  global $base_url;
 
   if ($node == null) {
     return;
@@ -387,7 +388,10 @@ function gsb_cmis_download_doc($form, $form_state, $node = null, $authtype = '')
       }
       break;
     case 'cas':
-      alumni_cas_auth_login('https://public2-dev.gsb.stanford.edu/gsb-cmis/gsb-cmis-download-doc/' . $node->nid . '/cas');
+      $next_url = $base_url . '/' . current_path();
+      $next_url = str_replace('http://', 'https://', $next_url);
+      watchdog('gsb_cmis', 'next_url = ' . $next_url, array(), WATCHDOG_NOTICE, 'link');
+      alumni_cas_auth_login($next_url);
       if (!user_is_logged_in()) {
         $form['stuff'] = array(
           '#type' => 'markup',
