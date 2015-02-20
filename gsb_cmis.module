@@ -578,10 +578,34 @@ function gsb_cmis_isFreeCase($node) {
  */
 function gsb_cmis_check_all_auths() {
   global $user;
+
+  $cookiestring = '';
+  foreach ($_COOKIE as $key => $cookie) {
+    $cookiestring .= $key .'='. urlencode($cookie) .';';
+  }
+  $headers = array('Cookie' => $cookiestring);
+  $cas_getLogin_type_url = variable_get('cas_getLogin_type_url', '');
+  $response = drupal_http_request($cas_getLogin_type_url, array('headers' => $headers));
+
+  watchdog('gsb_cmis', 'gsb_cmis_check_all_auths cas_getLogin_type_url = ' . $cas_getLogin_type_url, array(), WATCHDOG_NOTICE, 'link');
+  watchdog('gsb_cmis', 'gsb_cmis_check_all_auths response code = ' . $response->code, array(), WATCHDOG_NOTICE, 'link');
+  watchdog('gsb_cmis', 'gsb_cmis_check_all_auths response data = ' . $response->data, array(), WATCHDOG_NOTICE, 'link');
+
+  $pos = strpos($response->data, 'REME');
+  if ($pos !== false) {
+    watchdog('gsb_cmis', 'gsb_cmis_check_all_auths REME true', array(), WATCHDOG_NOTICE, 'link');
+    return true;
+  }
+
   if (user_is_logged_in()) {
     watchdog('gsb_cmis', 'gsb_cmis_check_all_auths user is logged in', array(), WATCHDOG_NOTICE, 'link');
     return true;
   }
+
+  if (simplesaml_auth_user_is_logged_in()) {
+    return true;
+  }
+
   watchdog('gsb_cmis', 'gsb_cmis_check_all_auths -not- logged in', array(), WATCHDOG_NOTICE, 'link');
   return false;
 }
