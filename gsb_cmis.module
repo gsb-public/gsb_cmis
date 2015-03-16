@@ -336,11 +336,11 @@ function gsb_cmis_download_auth($form, $form_state, $node = null) {
         $form['stuff'] = array(
           '#type' => 'markup',
           '#markup' =>
-            '<div class="left"><h2 class="page-title">Choose which auth to use</h2></div>' .
+            '<h1 class="title">Login Selection</h1>' .
             '<div class="error-wrapper not-found">' .
-              '<p>&nbsp;</p>' .
-              '<p class="larger-text"><a href="/gsb-cmis/gsb-cmis-download-doc/' . $node->nid . '/simplesaml">Use SimpleSaml Login</a></p>' .
-              '<p class="larger-text"><a href="/gsb-cmis/gsb-cmis-download-doc/' . $node->nid . '/cas">Use CAS Login</a></p>' .
+              '<p class="intro-copy">The site that you are accessing requires you to sign in.<br />Select your affiliation.</p>' .
+              '<div class="case-login alumni"><a href="/gsb-cmis/gsb-cmis-download-doc/' . $node->nid . '/cas">Stanford GSB <strong>Alumni</strong></a></div>' .
+              '<div class="case-login fac-student-staff"><a href="/gsb-cmis/gsb-cmis-download-doc/' . $node->nid . '/simplesaml">Stanford GSB <strong>Faculty, Students, and Staff</strong></a></div>' .
             '</div>',
         );
       }
@@ -425,7 +425,7 @@ function gsb_cmis_downloading_doc($form, $form_state, $node = null, $authtype = 
   $form['stuff'] = array(
     '#type' => 'markup',
     '#markup' =>
-      '<div class="left"><h2 class="page-title">Downloading yo document...</h2></div>' .
+      '<div class="left"><h2 class="page-title">Downloading your document...</h2></div>' .
       '<div class="error-wrapper not-found">' .
         '<p>&nbsp;</p>' .
         '<p class="larger-text">The document requested <i>"' . $node->title . '"</i> should download momentarily.</p>' .
