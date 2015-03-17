@@ -327,22 +327,29 @@ function gsb_cmis_download_auth($form, $form_state, $node = null) {
       $form = gsb_cmis_downloading_doc($form, $form_state, $node, 'free');
     }
     else {
+      $case_access = gsb_cmis_getCaseAccess($node);
       if (gsb_cmis_check_all_auths()) {
         // downloading doc message page
         $form = gsb_cmis_downloading_doc($form, $form_state, $node, 'gsbauth');
       }
       else {
-        // show page with two links to do alumni cas auth or simplesaml auth
-        $form['stuff'] = array(
-          '#type' => 'markup',
-          '#markup' =>
-            '<h1 class="title">Login Selection</h1>' .
-            '<div class="error-wrapper not-found">' .
-              '<p class="intro-copy">The site that you are accessing requires you to sign in.<br />Select your affiliation.</p>' .
-              '<div class="case-login alumni"><a href="/gsb-cmis/gsb-cmis-download-doc/' . $node->nid . '/cas">Stanford GSB <strong>Alumni</strong></a></div>' .
-              '<div class="case-login fac-student-staff"><a href="/gsb-cmis/gsb-cmis-download-doc/' . $node->nid . '/simplesaml">Stanford GSB <strong>Faculty, Students, and Staff</strong></a></div>' .
-            '</div>',
-        );
+        if ($case_access == 'Education and Corporate use') {
+          // show page with two links to do alumni cas auth or simplesaml auth
+          $form['stuff'] = array(
+            '#type' => 'markup',
+            '#markup' =>
+              '<h1 class="title">Login Selection</h1>' .
+              '<div class="error-wrapper not-found">' .
+                '<p class="intro-copy">The site that you are accessing requires you to sign in.<br />Select your affiliation.</p>' .
+                '<div class="case-login alumni"><a href="/gsb-cmis/gsb-cmis-download-doc/' . $node->nid . '/cas">Stanford GSB <strong>Alumni</strong></a></div>' .
+                '<div class="case-login fac-student-staff"><a href="/gsb-cmis/gsb-cmis-download-doc/' . $node->nid . '/simplesaml">Stanford GSB <strong>Faculty, Students, and Staff</strong></a></div>' .
+              '</div>',
+          );
+        }
+        else {
+          // downloading doc message page after simplesaml login
+          $form = gsb_cmis_downloading_doc($form, $form_state, $node, 'simplesaml');
+        }
       }
     }
   }
@@ -506,20 +513,41 @@ function gsb_cmis_field_extra_fields() {
  * Implements hook_node_view().
  */
 function gsb_cmis_node_view($node, $view_mode, $langcode) {
+
   // If this field is not configured for this view mode, skip it.
   $fields = field_extra_fields_get_display('node', $node->type, $view_mode);
   if (empty($fields['gsb_cmis_download_button']['visible'])) {
     return;
   }
-  // if the node is 'Case' and 'Paper Copy' is set to 'Yes' or...
+
+  $download_button_markup = '<div class="gsb-cmis-download-wrapper">' . '<a href="' . base_path() . 'gsb-cmis/gsb-cmis-download-auth/' . $node->nid . '" class="gsb-cmis-download-button" target="_blank">' . t('Download') . '</a>' . '</div>';
+  $language = $node->language;
+
+  // if the node is 'Case' and it has a downloadable access ($downloadable_case_access)
+  // ... then add the download button to the display
+  if ($node->type == 'case') {
+    $case_access = gsb_cmis_getCaseAccess($node);
+    $downloadable_case_access = array(
+      'Free',
+      'Education and Corporate use',
+      'Educational use only',
+      'Stanford GSB classes only, accessible'
+    );
+    if (in_array($case_access, $downloadable_case_access)) {
+      $node->content['gsb_cmis_download_button'] = array(
+        '#markup' => $download_button_markup,
+      );
+    }
+  }
+
   // if the node is 'Working Paper' and 'Has PDF' is checked then...
   // add the download button to the display
-  if ($node->type == 'case' && !empty($node->field_paper_copy['und'][0]) && $node->field_paper_copy['und'][0]['value'] == 'Yes' ||
-      $node->type == 'working_paper' && !empty($node->field_has_pdf['und'][0]['value'])) {
+  if ($node->type == 'working_paper' && !empty($node->field_has_pdf[$language][0]['value'])) {
     $node->content['gsb_cmis_download_button'] = array(
-      '#markup' => '<div class="gsb-cmis-download-wrapper">' . '<a href="' . base_path() . 'gsb-cmis/gsb-cmis-download-auth/' . $node->nid . '" class="gsb-cmis-download-button" target="_blank">' . t('Download') . '</a>' . '</div>',
+      '#markup' => $download_button_markup,
     );
   }
+
 }
 
 /**
@@ -567,10 +595,27 @@ function _gsb_cmis_getITTestfolderUUIDs() {
 function gsb_cmis_isFreeCase($node) {
   $language = $node->language;
   $free_case = false;
-  if (!empty($node->field_free_case[$language])) {
-    $free_case = $node->field_free_case[$language][0]['value'];
+  $case_access = gsb_cmis_getCaseAccess($node);
+  if ($case_access != '') {
+    if ($case_access == 'Free') {
+      $free_case = true;
+    }
   }
   return $free_case;
+}
+
+/**
+ *
+ */
+function gsb_cmis_getCaseAccess($node) {
+  $language = $node->language;
+  $case_access = '';
+  if (!empty($node->field_case_access[$language])) {
+    $case_access = $node->field_case_access[$language][0]['value'];
+  }
+  if ($case_access == 'Not for distribution') {
+  }
+  return $case_access;
 }
 
 /**
