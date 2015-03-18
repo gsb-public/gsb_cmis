@@ -605,15 +605,13 @@ function gsb_cmis_isFreeCase($node) {
 }
 
 /**
- *
+ * Get the Access Property setting for the node.
  */
 function gsb_cmis_getCaseAccess($node) {
   $language = $node->language;
-  $case_access = '';
+  $case_access = 'Not for distribution';
   if (!empty($node->field_case_access[$language])) {
     $case_access = $node->field_case_access[$language][0]['value'];
-  }
-  if ($case_access == 'Not for distribution') {
   }
   return $case_access;
 }
