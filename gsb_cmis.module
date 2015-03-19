@@ -229,7 +229,7 @@ function gsb_cmis_get_alfresco_doc($form, $form_state, $node, $authtype = '') {
       }
       break;
     case 'gsbauth':
-      if (gsb_cmis_check_all_auths()) {
+      if (gsb_cmis_check_all_auths($node)) {
         gsb_cmis_download_alfresco_doc($node);
       }
       break;
@@ -328,7 +328,7 @@ function gsb_cmis_download_auth($form, $form_state, $node = null) {
     }
     else {
       $case_access = gsb_cmis_getCaseAccess($node);
-      if (gsb_cmis_check_all_auths()) {
+      if (gsb_cmis_check_all_auths($node)) {
         // downloading doc message page
         $form = gsb_cmis_downloading_doc($form, $form_state, $node, 'gsbauth');
       }
@@ -619,7 +619,7 @@ function gsb_cmis_getCaseAccess($node) {
 /**
  *
  */
-function gsb_cmis_check_all_auths() {
+function gsb_cmis_check_all_auths($node) {
   global $user;
 
   $cookiestring = '';
@@ -634,20 +634,61 @@ function gsb_cmis_check_all_auths() {
   watchdog('gsb_cmis', 'gsb_cmis_check_all_auths response code = ' . $response->code, array(), WATCHDOG_NOTICE, 'link');
   watchdog('gsb_cmis', 'gsb_cmis_check_all_auths response data = ' . $response->data, array(), WATCHDOG_NOTICE, 'link');
 
-  $pos = strpos($response->data, 'REME');
-  if ($pos !== false) {
-    watchdog('gsb_cmis', 'gsb_cmis_check_all_auths REME true', array(), WATCHDOG_NOTICE, 'link');
+  $case_access = gsb_cmis_getCaseAccess($node);
+
+  watchdog('gsb_cmis', 'gsb_cmis_check_all_auths case_access = ' . $case_access, array(), WATCHDOG_NOTICE, 'link');
+
+  if (in_array($case_access, array('Free'))) {
+    watchdog('gsb_cmis', 'gsb_cmis_check_all_auths 100', array(), WATCHDOG_NOTICE, 'link');
     return true;
   }
 
-  if (user_is_logged_in()) {
-    watchdog('gsb_cmis', 'gsb_cmis_check_all_auths user is logged in', array(), WATCHDOG_NOTICE, 'link');
-    return true;
+  $cas_case_access = array(
+    'Education and Corporate use',
+  );
+
+  // is this a case that can be viewed by CAS users
+  if (in_array($case_access, $cas_case_access)) {
+
+    watchdog('gsb_cmis', 'gsb_cmis_check_all_auths 200', array(), WATCHDOG_NOTICE, 'link');
+
+    // check if logged in with CAS
+
+    $pos = strpos($response->data, 'REME');
+    if ($pos !== false) {
+      watchdog('gsb_cmis', 'gsb_cmis_check_all_auths REME true', array(), WATCHDOG_NOTICE, 'link');
+      return true;
+    }
+
+    if (user_is_logged_in()) {
+      watchdog('gsb_cmis', 'gsb_cmis_check_all_auths user is logged in', array(), WATCHDOG_NOTICE, 'link');
+      return true;
+    }
+
   }
 
-  if (simplesaml_auth_user_is_logged_in()) {
-    return true;
+  $webauth_case_access = array(
+    'Educational use only',
+    'Education and Corporate use',
+    'Stanford GSB classes only, accessible'
+  );
+
+  // is this a case that can be viewed by WebAuth users
+  if (in_array($case_access, $webauth_case_access)) {
+
+    watchdog('gsb_cmis', 'gsb_cmis_check_all_auths 300', array(), WATCHDOG_NOTICE, 'link');
+
+    // check if logged in with WebAuth (simplesaml)
+
+    if (simplesaml_auth_user_authenticated()) {
+
+      watchdog('gsb_cmis', 'gsb_cmis_check_all_auths 300a', array(), WATCHDOG_NOTICE, 'link');
+
+      return true;
+    }
   }
+
+  watchdog('gsb_cmis', 'gsb_cmis_check_all_auths 400', array(), WATCHDOG_NOTICE, 'link');
 
   watchdog('gsb_cmis', 'gsb_cmis_check_all_auths -not- logged in', array(), WATCHDOG_NOTICE, 'link');
   return false;
