@@ -339,7 +339,7 @@ function gsb_cmis_download_auth($form, $form_state, $node = null) {
             '#type' => 'markup',
             '#markup' =>
               '<h1 class="title">Login Selection</h1>' .
-              '<div class="error-wrapper not-found">' .
+              '<div class="error-wrapper">' .
                 '<p class="intro-copy">The site that you are accessing requires you to sign in.<br />Select your affiliation.</p>' .
                 '<div class="case-login alumni"><a href="/gsb-cmis/gsb-cmis-download-doc/' . $node->nid . '/cas">Stanford GSB <strong>Alumni</strong></a></div>' .
                 '<div class="case-login fac-student-staff"><a href="/gsb-cmis/gsb-cmis-download-doc/' . $node->nid . '/simplesaml">Stanford GSB <strong>Faculty, Students, and Staff</strong></a></div>' .
@@ -381,11 +381,10 @@ function gsb_cmis_download_doc($form, $form_state, $node = null, $authtype = '')
         $form['stuff'] = array(
           '#type' => 'markup',
           '#markup' =>
-            '<div class="left"><h2 class="page-title">Downloading document...</h2></div>' .
-            '<div class="error-wrapper not-found">' .
-              '<p>&nbsp;</p>' .
-              '<p class="larger-text">Access for the document requested, <i>"' . $node->title . '"</i>, is available to the GSB community only.</p>' .
-              '<p class="larger-text close-window"><a href="" class="active">Close window</a></p>' .
+            '<h1 class="title">Downloading document...</h1>' .
+            '<div class="error-wrapper">' .
+              '<p class="intro-copy">Access for the document requested, <i>“' . $node->title . '”</i>, is available to the GSB community only.' .
+              '<br /><br /><a href="" class="close-window active">Close window</a></p>' .
             '</div>',
         );
       }
@@ -403,11 +402,10 @@ function gsb_cmis_download_doc($form, $form_state, $node = null, $authtype = '')
         $form['stuff'] = array(
           '#type' => 'markup',
           '#markup' =>
-            '<div class="left"><h2 class="page-title">Downloading document...</h2></div>' .
-            '<div class="error-wrapper not-found">' .
-              '<p>&nbsp;</p>' .
-              '<p class="larger-text">Access for the document requested, <i>"' . $node->title . '"</i>, is available to the GSB community only.</p>' .
-              '<p class="larger-text close-window"><a href="" class="active">Close window</a></p>' .
+            '<h1 class="title">Downloading document...</h1>' .
+            '<div class="error-wrapper">' .
+              '<p class="intro-copy">Access for the document requested, <i>“' . $node->title . '”</i>, is available to the GSB community only.' .
+              '<br /><br /><a href="" class="close-window active">Close window</a></p>' .
             '</div>',
         );
       } else {
@@ -432,12 +430,10 @@ function gsb_cmis_downloading_doc($form, $form_state, $node = null, $authtype = 
   $form['stuff'] = array(
     '#type' => 'markup',
     '#markup' =>
-      '<div class="left"><h2 class="page-title">Downloading your document...</h2></div>' .
-      '<div class="error-wrapper not-found">' .
-        '<p>&nbsp;</p>' .
-        '<p class="larger-text">The document requested <i>"' . $node->title . '"</i> should download momentarily.</p>' .
-        '<p class="larger-text">Please close this window when it is complete.</p>' .
-        '<p class="larger-text close-window"><a href="" class="active">Close window</a></p>' .
+      '<h1 class="title">Download ' . $node->title . '</h1>' .
+      '<div class="error-wrapper">' .
+        '<p class="intro-copy"><i>“' . $node->title . '”</i> will download momentarily.' .
+        '<br /><br /><a href="" class="close-window active">Close this window</a> when the download is complete.</p>' .
       '</div>',
   );
   $form['#attached']['js'][drupal_get_path('module', 'gsb_cmis') . '/js/gsb_cmis.js'] = array('scope' => 'footer');
