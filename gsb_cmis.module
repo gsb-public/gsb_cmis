@@ -194,14 +194,9 @@ function gsb_cmis_log($message, $type = 'notice', $error = null) {
 function gsb_cmis_get_alfresco_doc($form, $form_state, $node, $authtype = '') {
   module_load_include('api.inc', 'cmis');
 
-  watchdog('gsb_cmis', 'gsb_cmis_get_alfresco_doc 0', array(), WATCHDOG_NOTICE, 'link');
-
   if ($node == null) {
-    watchdog('gsb_cmis', 'gsb_cmis_get_alfresco_doc 1', array(), WATCHDOG_NOTICE, 'link');
     return;
   }
-
-  watchdog('gsb_cmis', 'gsb_cmis_get_alfresco_doc 2 authtype = ' . $authtype, array(), WATCHDOG_NOTICE, 'link');
 
   $language = $node->language;
 
@@ -214,7 +209,6 @@ function gsb_cmis_get_alfresco_doc($form, $form_state, $node, $authtype = '') {
       break;
     case 'cas':
       if (user_is_logged_in()) {
-        watchdog('gsb_cmis', 'user is logged in', array(), WATCHDOG_NOTICE, 'link');
         gsb_cmis_download_alfresco_doc($node);
       }
       break;
@@ -235,8 +229,6 @@ function gsb_cmis_get_alfresco_doc($form, $form_state, $node, $authtype = '') {
       break;
   }
 
-  watchdog('gsb_cmis', 'gsb_cmis_get_alfresco_doc 3', array(), WATCHDOG_NOTICE, 'link');
-
   return $form;
 }
 
@@ -246,20 +238,13 @@ function gsb_cmis_get_alfresco_doc($form, $form_state, $node, $authtype = '') {
 function gsb_cmis_download_alfresco_doc($node) {
   module_load_include('api.inc', 'cmis');
 
-  watchdog('gsb_cmis', 'gsb_cmis_download_alfresco_doc 0', array(), WATCHDOG_NOTICE, 'link');
-
   if ($node == null) {
-    watchdog('gsb_cmis', 'gsb_cmis_download_alfresco_doc 1', array(), WATCHDOG_NOTICE, 'link');
     return;
   }
-
-  watchdog('gsb_cmis', 'gsb_cmis_download_alfresco_doc 2', array(), WATCHDOG_NOTICE, 'link');
 
   $language = $node->language;
 
   $uuid = $node->field_document_uuid[$language][0]['value'];
-
-  watchdog('gsb_cmis', 'uuid = ' . $uuid, array(), WATCHDOG_NOTICE, 'link');
 
   // get the repository and object
 
@@ -270,12 +255,9 @@ function gsb_cmis_download_alfresco_doc($node) {
     // get the object with the given uuid
     $object = gsb_cmis_api_getDocumentObject($repository_name, $uuid);
     // stream the doc
-    watchdog('gsb_cmis', 'object->id = ' . $object->id, array(), WATCHDOG_NOTICE, 'link');
     $content = cmisapi_getContentStream($repository->repositoryId, $object->id);
-    watchdog('gsb_cmis', 'after call to cmisapi_getContentStream', array(), WATCHDOG_NOTICE, 'link');
   }
   catch (CMISException $e) {
-    watchdog('gsb_cmis', 'got an exception', array(), WATCHDOG_NOTICE, 'link');
     $object_not_found = strstr($e->getMessage(),'Unable to find object workspace:');
     if (!empty($object_not_found)) {
       $product_type = '';
@@ -286,7 +268,6 @@ function gsb_cmis_download_alfresco_doc($node) {
     } else {
       cmis_error_handler('cmis_browser_content_get', $e);
     }
-    watchdog('gsb_cmis', 'gsb_cmis_download_alfresco_doc 3', array(), WATCHDOG_NOTICE, 'link');
     return;
   }
 
@@ -302,10 +283,6 @@ function gsb_cmis_download_alfresco_doc($node) {
 
   // download the doc
   print($content);
-
-  //watchdog('gsb_cmis', 'content length = ' . strlen($content), array(), WATCHDOG_NOTICE, 'link');
-
-  watchdog('gsb_cmis', 'gsb_cmis_download_alfresco_doc 4', array(), WATCHDOG_NOTICE, 'link');
 
   exit();
 }
@@ -396,7 +373,6 @@ function gsb_cmis_download_doc($form, $form_state, $node = null, $authtype = '')
     case 'cas':
       $next_url = $base_url . '/' . current_path();
       $next_url = str_replace('http://', 'https://', $next_url);
-      watchdog('gsb_cmis', 'next_url = ' . $next_url, array(), WATCHDOG_NOTICE, 'link');
       alumni_cas_auth_login($next_url);
       if (!user_is_logged_in()) {
         $form['stuff'] = array(
@@ -422,10 +398,6 @@ function gsb_cmis_download_doc($form, $form_state, $node = null, $authtype = '')
  *
  */
 function gsb_cmis_downloading_doc($form, $form_state, $node = null, $authtype = '') {
-
-  watchdog('gsb_cmis', 'gsb_cmis_downloading_doc 0', array(), WATCHDOG_NOTICE, 'link');
-
-  watchdog('gsb_cmis', 'gsb_cmis_downloading_doc node title = ' . $node->title, array(), WATCHDOG_NOTICE, 'link');
 
   $form['stuff'] = array(
     '#type' => 'markup',
@@ -464,7 +436,6 @@ function gsb_cmis_check_simplesaml_auth($node) {
     $simplesaml_auth_object = simplesaml_auth_login_check(FALSE);
     $attributes = $simplesaml_auth_object->getAttributes();
     if (empty($attributes['urn:oid:1.3.6.1.4.1.5923.1.1.1.7'])) {
-      watchdog('gsb_cmis', 'attribute has no workgroups');
       return false;
     } else {
       $workgroups = $attributes['urn:oid:1.3.6.1.4.1.5923.1.1.1.7'];
@@ -477,11 +448,9 @@ function gsb_cmis_check_simplesaml_auth($node) {
         }
       }
       if (in_array('gsb-apps:nongsb_deny', $workgroups)) {
-        watchdog('gsb_cmis', 'attribute has deny workgroup');
         return false;
       }
       if (!$has_approved_workgroup) {
-        watchdog('gsb_cmis', 'attribute has no workgroups');
         return false;
       }
     }
@@ -637,16 +606,9 @@ function gsb_cmis_check_all_auths($node) {
   $cas_getLogin_type_url = variable_get('cas_getLogin_type_url', '');
   $response = drupal_http_request($cas_getLogin_type_url, array('headers' => $headers));
 
-  watchdog('gsb_cmis', 'gsb_cmis_check_all_auths cas_getLogin_type_url = ' . $cas_getLogin_type_url, array(), WATCHDOG_NOTICE, 'link');
-  watchdog('gsb_cmis', 'gsb_cmis_check_all_auths response code = ' . $response->code, array(), WATCHDOG_NOTICE, 'link');
-  watchdog('gsb_cmis', 'gsb_cmis_check_all_auths response data = ' . $response->data, array(), WATCHDOG_NOTICE, 'link');
-
   $case_access = gsb_cmis_getCaseAccess($node);
 
-  watchdog('gsb_cmis', 'gsb_cmis_check_all_auths case_access = ' . $case_access, array(), WATCHDOG_NOTICE, 'link');
-
   if (in_array($case_access, array('Free'))) {
-    watchdog('gsb_cmis', 'gsb_cmis_check_all_auths 100', array(), WATCHDOG_NOTICE, 'link');
     return true;
   }
 
@@ -656,22 +618,14 @@ function gsb_cmis_check_all_auths($node) {
 
   // is this a case that can be viewed by CAS users
   if (in_array($case_access, $cas_case_access)) {
-
-    watchdog('gsb_cmis', 'gsb_cmis_check_all_auths 200', array(), WATCHDOG_NOTICE, 'link');
-
     // check if logged in with CAS
-
     $pos = strpos($response->data, 'REME');
     if ($pos !== false) {
-      watchdog('gsb_cmis', 'gsb_cmis_check_all_auths REME true', array(), WATCHDOG_NOTICE, 'link');
       return true;
     }
-
     if (user_is_logged_in()) {
-      watchdog('gsb_cmis', 'gsb_cmis_check_all_auths user is logged in', array(), WATCHDOG_NOTICE, 'link');
       return true;
     }
-
   }
 
   $webauth_case_access = array(
@@ -682,21 +636,11 @@ function gsb_cmis_check_all_auths($node) {
 
   // is this a case that can be viewed by WebAuth users
   if (in_array($case_access, $webauth_case_access)) {
-
-    watchdog('gsb_cmis', 'gsb_cmis_check_all_auths 300', array(), WATCHDOG_NOTICE, 'link');
-
     // check if logged in with WebAuth (simplesaml)
-
     if (simplesaml_auth_user_authenticated()) {
-
-      watchdog('gsb_cmis', 'gsb_cmis_check_all_auths 300a', array(), WATCHDOG_NOTICE, 'link');
-
       return true;
     }
   }
 
-  watchdog('gsb_cmis', 'gsb_cmis_check_all_auths 400', array(), WATCHDOG_NOTICE, 'link');
-
-  watchdog('gsb_cmis', 'gsb_cmis_check_all_auths -not- logged in', array(), WATCHDOG_NOTICE, 'link');
   return false;
 }
