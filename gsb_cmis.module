@@ -275,10 +275,16 @@ function gsb_cmis_download_alfresco_doc($node) {
     ob_end_clean();
   }
 
+  $filename = $object->properties['cmis:name'];
+  $file_parts = pathinfo($filename);
+  if (empty($file_parts['extension'])) {
+    $filename .= '.' . _gsb_cmis_get_extension_mimetype($object->properties['cmis:contentStreamMimeType']);
+  }
+
   drupal_add_http_header('Cache-Control', 'no-cache, must-revalidate');
   drupal_add_http_header('Content-type', $object->properties['cmis:contentStreamMimeType']);
   if ($object->properties['cmis:contentStreamMimeType'] != 'text/html') {
-    drupal_add_http_header('Content-Disposition', 'attachment; filename="'. $object->properties['cmis:name'] .'"');
+    drupal_add_http_header('Content-Disposition', 'attachment; filename="'. $filename .'"');
   }
 
   // download the doc
@@ -643,4 +649,22 @@ function gsb_cmis_check_all_auths($node) {
   }
 
   return false;
+}
+
+/**
+ * Use this function to get extension using mimetype
+ *
+ * @param $mimetype
+ *   The mimetype base
+ *
+ * @return
+ *   The file extension.
+ */
+function _gsb_cmis_get_extension_mimetype($mimetype) {
+  module_load_include('inc', 'content', 'includes/file.mimetypes');
+  $mapping = file_default_mimetype_mapping();
+
+  $extension_key = array_search($mimetype, $mapping['mimetypes']);
+  $extensions = array_flip($mapping['extensions']);
+  return $extensions[$extension_key];
 }
