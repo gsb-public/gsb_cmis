@@ -640,10 +640,9 @@ function gsb_cmis_check_all_auths($node) {
     // check if logged in with CAS
     $pos = strpos($response->data, 'REME');
     if ($pos !== false) {
-      return true;
-    }
-    if (user_is_logged_in()) {
-      return true;
+      if (user_is_logged_in()) {
+        return true;
+      }
     }
   }
 
