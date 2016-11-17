@@ -367,7 +367,7 @@ function gsb_cmis_download_doc($form, $form_state, $node = null, $authtype = '')
             '<h1 class="title">Downloading document...</h1>' .
             '<div class="error-wrapper">' .
               '<p class="intro-copy">Access for the document requested, <i>“' . $node->title . '”</i>, is available to the GSB community only.' .
-              '<br /><br /><a href="" class="close-window active">Close window</a></p>' .
+              '<br /><br /><a href="/" class="close-window active">Close window</a></p>' .
             '</div>',
         );
       }
@@ -387,7 +387,7 @@ function gsb_cmis_download_doc($form, $form_state, $node = null, $authtype = '')
             '<h1 class="title">Downloading document...</h1>' .
             '<div class="error-wrapper">' .
               '<p class="intro-copy">Access for the document requested, <i>“' . $node->title . '”</i>, is available to the GSB community only.' .
-              '<br /><br /><a href="" class="close-window active">Close window</a></p>' .
+              '<br /><br /><a href="/" class="close-window active">Close window</a></p>' .
             '</div>',
         );
       } else {
@@ -411,7 +411,7 @@ function gsb_cmis_downloading_doc($form, $form_state, $node = null, $authtype = 
       '<h1 class="title">Download ' . $node->title . '</h1>' .
       '<div class="error-wrapper">' .
         '<p class="intro-copy"><i>“' . $node->title . '”</i> will download momentarily.' .
-        '<br /><br /><a href="" class="close-window active">Close this window</a> when the download is complete.</p>' .
+        '<br /><br /><a href="/" class="close-window active">Close this window</a> when the download is complete.</p>' .
       '</div>',
   );
   $language = $node->language;
