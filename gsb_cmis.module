@@ -414,7 +414,10 @@ function gsb_cmis_downloading_doc($form, $form_state, $node = null, $authtype = 
         '<br /><br /><a href="" class="close-window active">Close this window</a> when the download is complete.</p>' .
       '</div>',
   );
+  if($node->field_instance_text['und'][0]['value'] == "")
   $form['#attached']['js'][drupal_get_path('module', 'gsb_cmis') . '/js/gsb_cmis.js'] = array('scope' => 'footer');
+  else
+  $form['#attached']['js'][drupal_get_path('module', 'gsb_cmis') . '/js/gsb_box.js'] = array('scope' => 'footer'); 
   $form['#attached']['js'][] = array(
     'type' => 'setting',
     'data' => array(
