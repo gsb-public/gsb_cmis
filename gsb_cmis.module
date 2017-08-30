@@ -428,6 +428,8 @@ function gsb_cmis_downloading_doc($form, $form_state, $node = null, $authtype = 
   $form['#attached']['js'][drupal_get_path('module', 'gsb_cmis') . '/js/gsb_box.js'] = array('scope' => 'footer'); 
   else
   $form['#attached']['js'][drupal_get_path('module', 'gsb_cmis') . '/js/gsb_cmis.js'] = array('scope' => 'footer');
+  else
+  $form['#attached']['js'][drupal_get_path('module', 'gsb_cmis') . '/js/gsb_box.js'] = array('scope' => 'footer');
   $form['#attached']['js'][] = array(
     'type' => 'setting',
     'data' => array(
