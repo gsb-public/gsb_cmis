@@ -1,5 +1,5 @@
 /**
- * Custom JS file for gsb_cmis
+ * Custom JS file for downloading Box file
  */
 (function($){
   Drupal.behaviors.gsbBOX = {
