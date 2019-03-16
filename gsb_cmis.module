@@ -18,13 +18,6 @@ function gsb_cmis_menu() {
     'access arguments' => array(1),
     'access callback' => 'gsb_cmis_content_type_import_access',
   );
-  $items['gsb-cmis/gsb-cmis-get-alfresco-doc/%node/%'] = array(
-    'title' => 'Downloading document...',
-    'description' => 'Downloading document...',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('gsb_cmis_get_alfresco_doc', 2, 3),
-    'access callback' => TRUE,
-  );
   $items['gsb-cmis/gsb-cmis-download-doc/%node/%'] = array(
     'title' => 'GSB CMIS Download Document',
     'description' => 'GSB CMIS Download Document',
@@ -186,111 +179,6 @@ function gsb_cmis_log($message, $type = 'notice', $error = null) {
   elseif (function_exists('dpm')) {
     dpm($message);
   }
-}
-
-/**
- * Handles route for downloading Alfresco Docs
- */
-function gsb_cmis_get_alfresco_doc($form, $form_state, $node, $authtype = '') {
-  module_load_include('api.inc', 'cmis');
-
-  if ($node == null) {
-    return;
-  }
-
-  $language = $node->language;
-
-  switch ($authtype) {
-    case 'simplesaml':
-      if ($node->type == 'case' && !gsb_cmis_check_simplesaml_auth($node)) {
-        return;
-      }
-      gsb_cmis_download_alfresco_doc($node);
-      break;
-    case 'cas':
-      if (user_is_logged_in()) {
-        gsb_cmis_download_alfresco_doc($node);
-      }
-      break;
-    case 'free':
-      if (gsb_cmis_isFreeCase($node)) {
-        gsb_cmis_download_alfresco_doc($node);
-      }
-      break;
-    case 'notcase':
-      if ($node->type != 'case') {
-        gsb_cmis_download_alfresco_doc($node);
-      }
-      break;
-    case 'gsbauth':
-      if (gsb_cmis_check_all_auths($node)) {
-        gsb_cmis_download_alfresco_doc($node);
-      }
-      break;
-  }
-
-  return $form;
-}
-
-/**
- * Streams doc from Alfresco
- */
-function gsb_cmis_download_alfresco_doc($node) {
-  module_load_include('api.inc', 'cmis');
-
-  if ($node == null) {
-    return;
-  }
-
-  $language = $node->language;
-
-  $uuid = $node->field_document_uuid[$language][0]['value'];
-
-  // get the repository and object
-
-  $repository_name = 'default';
-  $repository = cmis_get_repository($repository_name);
-
-  try {
-    // get the object with the given uuid
-    $object = gsb_cmis_api_getDocumentObject($repository_name, $uuid);
-    // stream the doc
-    $content = cmisapi_getContentStream($repository->repositoryId, $object->id);
-  }
-  catch (CMISException $e) {
-    $object_not_found = strstr($e->getMessage(),'Unable to find object workspace:');
-    if (!empty($object_not_found)) {
-      $product_type = '';
-      if (!empty($node->field_product_type[$language][0])) {
-        $product_type = $node->field_product_type[$language][0]['value'];
-      }
-      drupal_set_message('Error - Unable to find ' . $product_type . ' document: ' . '"' . $node->title . '"', 'error');
-    } else {
-      cmis_error_handler('cmis_browser_content_get', $e);
-    }
-    return;
-  }
-
-  if (ob_get_level()) {
-    ob_end_clean();
-  }
-
-  $filename = $object->properties['cmis:name'];
-  $file_parts = pathinfo($filename);
-  if (empty($file_parts['extension'])) {
-    $filename .= '.' . _gsb_cmis_get_extension_mimetype($object->properties['cmis:contentStreamMimeType']);
-  }
-
-  drupal_add_http_header('Cache-Control', 'no-cache, must-revalidate');
-  drupal_add_http_header('Content-type', $object->properties['cmis:contentStreamMimeType']);
-  if ($object->properties['cmis:contentStreamMimeType'] != 'text/html') {
-    drupal_add_http_header('Content-Disposition', 'attachment; filename="'. $filename .'"');
-  }
-
-  // download the doc
-  print($content);
-
-  exit();
 }
 
 /**
